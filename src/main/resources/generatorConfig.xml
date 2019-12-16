@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+    <!-- location填本地mysql-connector-java-5.1.40.jar的路径 -->
+    <classPathEntry location="D:/Java/maven-repository/mysql/mysql-connector-java/5.1.25/mysql-connector-java-5.1.25.jar"/>
+    <context id="context1" targetRuntime="MyBatis3">
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+        <!-- 去注释 -->
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+
+        <!-- JDBC连接 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://116.85.15.163:3306/zeebe_monitor?characterEncoding\=UTF-8" userId="root" password="826301"/>
+
+        <!-- 实体层 -->
+        <javaModelGenerator targetPackage="io.zeebe.monitor.bean.common" targetProject="src/main/java"/>
+
+        <!-- Mappering.xml -->
+        <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources"/>
+
+        <!-- DAO层 -->
+        <javaClientGenerator targetPackage="io.zeebe.monitor.dao.Mapper" targetProject="src/main/java" type="XMLMAPPER"/>
+
+        <!-- schema填数据库名 tableName填需要生成代码的表名 若要一次性多张表就将下面的代码多复制，修改表名即可-->
+
+        <!--zeebe监控数据表-->
+        <table schema="zeebe_monitor" tableName="zeebe_monitor_list" domainObjectName="ZeebeMonitorListCommonBean"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false"/>
+
+        <!--zeebe监控结果表-->
+        <!--<table schema="zeebe_monitor" tableName="zeebe_result" domainObjectName="ZeebeResultCommonBean"-->
+               <!--enableCountByExample="false" enableUpdateByExample="false"-->
+               <!--enableDeleteByExample="false" enableSelectByExample="false"-->
+               <!--selectByExampleQueryId="false"/>-->
+
+    </context>
+</generatorConfiguration>

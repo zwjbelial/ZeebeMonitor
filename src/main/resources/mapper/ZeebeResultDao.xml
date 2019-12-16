@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.zeebe.monitor.dao.ZeebeResultDao">
+    <resultMap id="BaseResultMap" type="io.zeebe.monitor.bean.ZeebeResultBean">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="job_key" property="jobKey" jdbcType="BIGINT"/>
+        <result column="job_name" property="jobName" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="job_type" property="jobType" jdbcType="VARCHAR"/>
+        <result column="worker" property="worker" jdbcType="VARCHAR"/>
+        <result column="retries" property="retries" jdbcType="INTEGER"/>
+        <result column="activity_id" property="activityId" jdbcType="VARCHAR"/>
+        <result column="activity_instance_key" property="activityInstanceKey" jdbcType="VARCHAR"/>
+        <result column="workflow_instance_key" property="workflowInstanceKey" jdbcType="VARCHAR"/>
+        <result column="start_date" property="startDate" jdbcType="TIMESTAMP"/>
+        <result column="error_flag" property="errorFlag" jdbcType="VARCHAR"/>
+        <result column="del_flag" property="delFlag" jdbcType="VARCHAR"/>
+        <result column="creator" property="creator" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="updater" property="updater" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="io.zeebe.monitor.bean.common.ZeebeResultCommonBean" extends="BaseResultMap">
+        <result column="message" property="message" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <!--批量插入-->
+    <insert id="insertZeebeResultBatch">
+        insert into zeebe_result
+        (job_key, job_name, state, job_type, worker, retries, activity_id, activity_instance_key, workflow_instance_key, start_date, error_flag, del_flag, creator, create_time, update_time, message )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.jobKey},
+            #{item.jobName},
+            #{item.state},
+            #{item.jobType},
+            #{item.worker},
+            #{item.retries},
+            #{item.activityId},
+            #{item.activityInstanceKey},
+            #{item.workflowInstanceKey},
+            #{item.startDate},
+            #{item.errorFlag},
+            '0',
+            #{item.creator},
+            sysdate(),
+            sysdate(),
+            #{item.message}
+            )
+        </foreach>
+    </insert>
+
+    <!--错误日志表批量插入-->
+    <insert id="insertZeebeResultErrLogBatch">
+        insert into zeebe_result_err_log
+        (job_key, job_name, state, job_type, worker, retries, activity_id, activity_instance_key, workflow_instance_key, start_date, error_flag, del_flag, creator, create_time, update_time, message )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.jobKey},
+            #{item.jobName},
+            #{item.state},
+            #{item.jobType},
+            #{item.worker},
+            #{item.retries},
+            #{item.activityId},
+            #{item.activityInstanceKey},
+            #{item.workflowInstanceKey},
+            #{item.startDate},
+            #{item.errorFlag},
+            '0',
+            #{item.creator},
+            sysdate(),
+            sysdate(),
+            #{item.message}
+            )
+        </foreach>
+    </insert>
+
+    <!--将所有结果表数据更新状态为正确-->
+    <update id="updateAllErrFlagRight">
+        update zeebe_result
+        set error_flag = 0
+    </update>
+
+    <!--批量更新-->
+    <update id="updateZeebeResultBatchByJobKey">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            UPDATE zeebe_result
+            <set>
+                job_name = #{item.jobName},
+                job_type = #{item.jobType},
+                state = #{item.state},
+                worker = #{item.worker},
+                retries = #{item.retries},
+                activity_id = #{item.activityId},
+                activity_instance_key = #{item.activityInstanceKey},
+                workflow_instance_key = #{item.workflowInstanceKey},
+                start_date = #{item.startDate},
+                error_flag = #{item.errorFlag},
+                message = #{item.message},
+                updater = #{item.updater},
+                update_time = sysdate(),
+            </set>
+            <where>
+                binary job_key = #{item.jobKey}
+            </where>
+        </foreach>
+    </update>
+
+    <!--获取mysql数据库中的所有数据-->
+    <select id="getAllJobKeys" resultType="java.lang.Long">
+        select distinct job_key AS jobKey
+        from zeebe_result
+    </select>
+
+</mapper>
